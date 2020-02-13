@@ -230,12 +230,12 @@ handle_info({#'basic.deliver'{ delivery_tag=DeliveryTag },
     % rabbit_log:debug("msg: ~p~n", [Msg]),
 																								% Transform message headers to HTTP headers
 		[Xhdrs, Params] = process_headers(Headers),
-		HttpHdrs = try Xhdrs ++ [{"Content-Type", maybe_add_content_type(ContentType)},
-												 {"Accept", ?ACCEPT},
-												 {"Accept-Encoding", ?ACCEPT_ENCODING},
-												 {"X-Requested-With", ?REQUESTED_WITH},
-												 {"X-Webhooks-Version", ?VERSION}
-												] ++ case ReplyTo of
+        HttpHdrs = try Xhdrs ++ [{"Content-Type", maybe_add_content_type(ContentType)},
+                                 {"Accept", ?ACCEPT},
+                                 {"Accept-Encoding", ?ACCEPT_ENCODING},
+                                 {"X-Requested-With", ?REQUESTED_WITH},
+                                 {"X-Webhooks-Version", ?VERSION}
+                                ] ++ case ReplyTo of
 																 undefined -> [];
 																 _ -> [{"X-ReplyTo", binary_to_list(ReplyTo)}]
 														 end
@@ -298,21 +298,24 @@ min_to_msec(Min) ->
 		(Min * 60 * 1000).
 
 process_headers(Headers) ->
-		lists:foldl(fun (Hdr, AllHdrs) ->
-												case Hdr of
-														{Key, _, Value} ->
-																[HttpHdrs, Params] = AllHdrs,
-																case <<Key:2/binary>> of
-																		<<"X-">> ->
-																				[[{binary_to_list(Key), binary_to_list(Value)} | HttpHdrs], Params];
-																		_ ->
-																				[HttpHdrs, [{binary_to_list(Key), binary_to_list(Value)} | Params]]
-																end
-												end
-								end, [[], []], case Headers of
-																	 undefined -> [];
-																	 Else -> Else
-															 end).
+    lists:foldl(fun (Hdr, AllHdrs) ->
+                        case Hdr of
+                            {Key, _, Value} ->
+                                [HttpHdrs, Params] = AllHdrs,
+                                case <<Key:2/binary>> of
+                                    <<"X-">> ->
+                                        [[{binary_to_list(Key), binary_to_list(Value)} | HttpHdrs], Params];
+                                    _ when Key == <<"Authorization">> ->
+                                        lager:info("~p: ~p", [Key, Value]),
+                                        [[{"Authorization", binary_to_list(Value)} | HttpHdrs], Params];
+                                    _ ->
+                                        [HttpHdrs, [{binary_to_list(Key), binary_to_list(Value)} | Params]]
+                                end
+                        end
+                end, [[], []], case Headers of
+                                   undefined -> [];
+                                   Else -> Else
+                               end).
 	
 parse_url(From, Params) ->
 		lists:foldl(fun (P, NewUrl) ->
