@@ -248,15 +248,15 @@ handle_info({#'basic.deliver'{ delivery_tag=DeliveryTag },
 							undefined -> parse_url(Config#webhook.url, Params);
 							NewUrl -> parse_url(NewUrl, Params)
 					end,
-		Method = case proplists:get_value("method", Params) of
-								 undefined -> Config#webhook.method;
-								 NewMethod -> list_to_atom(string:to_lower(NewMethod))
-						 end,
+        Method = case proplists:get_value("method", Params) of
+                     undefined -> Config#webhook.method;
+                     NewMethod -> list_to_atom(string:to_lower(NewMethod))
+                 end,
 
 																								% Issue the actual request.
 		worker_pool:submit_async(
 			fun () -> 
-							send_request(Channel, DeliveryTag, Url, Method, HttpHdrs, Payload) 
+                    send_request(Channel, DeliveryTag, Url, Method, HttpHdrs, Payload) 
 			end),
 
 		Sent = State#state.sent + 1,
@@ -328,13 +328,13 @@ parse_url(From, Params) ->
 send_request(Channel, DeliveryTag, Url, Method, HttpHdrs, Payload) ->
 		try
 																								% Issue the actual request.
-				case dlhttpc:request(Url, Method, HttpHdrs, Payload, infinity) of
+            case dlhttpc:request(Url, Method, HttpHdrs, Payload, infinity) of
 																								% Only process if the server returns 20x.
-						{ok, {{Status, _}, Hdrs, _Response}} when Status >= 200 andalso Status < 300 ->
+                {ok, {{Status, _}, Hdrs, _Response}} when Status >= 200 andalso Status < 300 ->
 																								% TODO: Place result back on a queue?
                 % rabbit_log:debug(" hdrs: ~p~n response: ~p~n", [Hdrs, Response]),
 																								% Check to see if we need to unzip this response
-								case re:run(proplists:get_value("Content-Encoding", Hdrs, ""), "(gzip)", [{capture, [1], list}]) of
+                    case re:run(proplists:get_value("Content-Encoding", Hdrs, ""), "(gzip)", [{capture, [1], list}]) of
 										nomatch ->
                         % rabbit_log:debug("plain response: ~p~n", [Response]),
 												ok;
@@ -347,8 +347,13 @@ send_request(Channel, DeliveryTag, Url, Method, HttpHdrs, Payload) ->
 												ok
 								end,
 								amqp_channel:call(Channel, #'basic.ack'{ delivery_tag=DeliveryTag });
-						Else ->
-								error_logger:error_msg("~p", [Else])
+                {error, busy} ->
+								error_logger:error_msg("dlhttp is busy nack", []),
+								amqp_channel:call(Channel, #'basic.nack'{ delivery_tag=DeliveryTag});
+                Else ->
+								error_logger:error_msg("Received ~p from dlhttp nack", [Else]),
+								amqp_channel:call(Channel, #'basic.nack'{delivery_tag=DeliveryTag})
+
 				end
 		catch Ex -> error_logger:error_msg("Error requesting ~p: ~p~n", [Url, Ex]) end.
 	
