@@ -306,7 +306,6 @@ process_headers(Headers) ->
                                     <<"X-">> ->
                                         [[{binary_to_list(Key), binary_to_list(Value)} | HttpHdrs], Params];
                                     _ when Key == <<"Authorization">> ->
-                                        lager:info("~p: ~p", [Key, Value]),
                                         [[{"Authorization", binary_to_list(Value)} | HttpHdrs], Params];
                                     _ ->
                                         [HttpHdrs, [{binary_to_list(Key), binary_to_list(Value)} | Params]]
