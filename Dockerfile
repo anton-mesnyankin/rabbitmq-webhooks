@@ -18,7 +18,7 @@ COPY . $HOME/rabbitmq-webhooks/
 WORKDIR $HOME/rabbitmq-webhooks/
 
 # pulls changes, compile code and build all production stuff
-RUN make && make dist
+RUN make && make dist DIST_AS_EZS=1
 
 # start new image for lower size
 FROM rabbitmq:3.8.2-management
@@ -27,8 +27,8 @@ FROM rabbitmq:3.8.2-management
 WORKDIR $RABBITMQ_HOME
 
 # copy production complied plugin to the new rabbitmq image
-COPY --from=base /opt/rabbitmq-webhooks/plugins/dispcount-*.ez plugins
-COPY --from=base /opt/rabbitmq-webhooks/plugins/dlhttpc-*.ez plugins
-COPY --from=base /opt/rabbitmq-webhooks/plugins/rabbitmq_webhooks-*.ez plugins
+COPY --from=base /opt/rabbitmq-webhooks/plugins/dispcount*.ez plugins
+COPY --from=base /opt/rabbitmq-webhooks/plugins/dlhttpc*.ez plugins
+COPY --from=base /opt/rabbitmq-webhooks/plugins/rabbitmq_webhooks*.ez plugins
 
 RUN rabbitmq-plugins enable rabbitmq_webhooks

@@ -21,7 +21,7 @@
 
 -define(NOW, erlang:timestamp()).
 -define(REQUESTED_WITH, "RabbitMQ-Webhooks").
--define(VERSION, "0.18").
+-define(VERSION, "0.19").
 -define(ACCEPT, "application/json;q=.9,text/plain;q=.8,text/xml;q=.6,application/xml;q=.7,text/html;q=.5,*/*;q=.4").
 -define(ACCEPT_ENCODING, "gzip").
 -define(SEC_MSEC, 1000).

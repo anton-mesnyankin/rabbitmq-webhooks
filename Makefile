@@ -12,11 +12,15 @@ define PROJECT_ENV
 endef
 
 define PROJECT_APP_EXTRA_KEYS
-	{broker_version_requirements, ["3.8.0"]}
+	{broker_version_requirements, []}
 endef
 
-DEPS = rabbit_common rabbit amqp_client dlhttpc rabbitmq_management
+DEPS = rabbit_common rabbit amqp_client dlhttpc dispcount
 TEST_DEPS = rabbitmq_ct_helpers rabbitmq_ct_client_helpers
+
+# FIXME: Add Ranch as a BUILD_DEPS to be sure the correct version is picked.
+# See rabbitmq-components.mk.
+BUILD_DEPS += ranch
 
 DEP_EARLY_PLUGINS = rabbit_common/mk/rabbitmq-early-plugin.mk
 DEP_PLUGINS = rabbit_common/mk/rabbitmq-plugin.mk
@@ -29,6 +33,3 @@ ERLANG_MK_COMMIT = rabbitmq-tmp
 
 include rabbitmq-components.mk
 include erlang.mk
-
-tar: dist
-	(cd plugins && tar czf ../${PROJECT}-${PROJECT_VERSION}.tar.gz dispcount-*.ez dlhttpc-*.ez ${PROJECT}-${PROJECT_VERSION}.ez)
