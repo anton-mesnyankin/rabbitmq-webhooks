@@ -26,7 +26,7 @@ TEMPLATE = "
         ]},
         {routing_key, <<\"{% if webhook.routing_key %}{{ webhook.routing_key }}{% else %}\#{% endif %}\">>}
         {% if webhook.max_send %}
-        ,{max_send, { {{ webhook.max_send.frequency }}, {{ webhook.max_send.per }} } }
+        ,{max_send, { {{ webhook.max_send.max }}, {{ webhook.max_send.frequency }}, {{ webhook.max_send.unit }} } }
         {% endif %}
         {% if webhook.send_if %}
         ,{send_if, [{between, { {{ webhook.send_if.between.start_hour }}, {{ webhook.send_if.between.start_min }} }, { {{ webhook.send_if.between.end_hour }}, {{ webhook.send_if.between.end_min }} } }]}

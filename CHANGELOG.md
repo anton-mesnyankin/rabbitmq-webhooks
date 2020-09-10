@@ -2,6 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
+* 0.20 - Introduced the new retry strategy
 * 0.19 - Bump erlang.mk and rabbitmq-components.mk
 * 0.18 - Added ability to set `X-Webhooks-Signature` as part of webhook authentication
 * 0.17 - Added basic auth from AMQP headers and messages requeue on dlhttp errors

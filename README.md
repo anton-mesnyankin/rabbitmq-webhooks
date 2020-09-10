@@ -11,8 +11,8 @@ Tested against RabbitMQ versions up to 3.8.2
 The `Dockerfile` provides the ability to build [RabbitMQ](https://hub.docker.com/_/rabbitmq) with the management plugin installed and enabled by default, including webhooks.
 
 ```bash
-docker build --tag rabbitmq-webhooks:0.18 .
-docker run -d --hostname rabbitmq --name rabbitmq rabbitmq-webhooks:0.18
+docker build --tag rabbitmq-webhooks:0.20 .
+docker run -d --hostname rabbitmq --name rabbitmq rabbitmq-webhooks:0.20
 ```
 
 To configure your broker, download the `gen_config` script from the source tree and run it, pointing 
@@ -26,7 +26,7 @@ Start your broker and you should see output similar to what's discussed in the "
 To secure webhooks, you'll need to set up your secret token using `RABBITMQ_WEBHOOKS_SECRET` environment variable. Never hardcode the token into your app!
 
 ```bash
-docker run --env RABBITMQ_WEBHOOKS_SECRET=foo -d --hostname rabbitmq --name rabbitmq rabbitmq-webhooks:0.18
+docker run --env RABBITMQ_WEBHOOKS_SECRET=foo -d --hostname rabbitmq --name rabbitmq rabbitmq-webhooks:0.20
 ```
 
 When your secret token is set, RabbitMQ uses it to create a hash signature with each payload. It will pass this hash signature along with each request in the headers as `X-Webhooks-Signature`.
@@ -151,8 +151,9 @@ webhooks:
     auto_delete: true
   routing_key: "#"
   max_send:
+    max: 3
     frequency: 5
-    per: second # second | minute | hour | day | week
+    unit: second # second | minute | hour | day | week
   send_if:
     between:
       start_hour: 8 # 24-hour time
@@ -183,7 +184,7 @@ If you want to configure it manually, you just need to put your config to `advan
 					{auto_delete, true}
 				]},
 				{routing_key, &lt;&lt;"#"&gt;&gt;},
-				{max_send, {5, second}},
+				{max_send, {3, 5, second}},
 				{send_if, [{between, {13, 24}, {13, 25}}]}
 			]}
 		]}
