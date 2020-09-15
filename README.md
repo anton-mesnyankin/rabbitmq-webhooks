@@ -71,16 +71,15 @@ The build process for the webhooks plugin has changed. It now uses rebar to buil
 git clone https://github.com/jbrisbin/rabbitmq-webhooks.git
 cd rabbitmq-webhooks
 make
-make dist
-make ez
+make dist DIST_AS_EZS=1
 ```
 
 You can now install the three .ez files required:
 
 ```bash
-cp dist/dispcount.ez $RABBITMQ_HOME/plugins
-cp dist/dlhttpc.ez $RABBITMQ_HOME/plugins
-cp dist/rabbitmq_webhooks.ez $RABBITMQ_HOME/plugins
+cp plugins/dispcount*.ez $RABBITMQ_HOME/plugins
+cp plugins/dlhttpc*.ez $RABBITMQ_HOME/plugins
+cp plugins/rabbitmq_webhooks*.ez $RABBITMQ_HOME/plugins
 ```
 
 When you start the broker, you should see (at the top):
