@@ -1,5 +1,7 @@
 ## RabbitMQ Webhooks Plugin
 
+> ⛔️ DEPRECATED this is no longer supported.
+
 This plugin provides a "webhook" functionality to a RabbitMQ broker. 
 Any message processed by this plugin will be forwarded to the URL 
 you configure, using the method you give it. 
