@@ -17,11 +17,16 @@ COPY . $HOME/rabbitmq-webhooks/
 # change workgin dir
 WORKDIR $HOME/rabbitmq-webhooks/
 
+# actualize deps build (workaround after switching rabbitmq to monorepo)
+RUN git clone https://github.com/rabbitmq/rabbitmq-server && \
+    cd rabbitmq-server && git checkout tags/v3.8.26 && \
+    make && cd .. && ln -s ./rabbitmq-server/deps
+
 # pulls changes, compile code and build all production stuff
 RUN make && make dist DIST_AS_EZS=1
 
 # start new image for lower size
-FROM rabbitmq:3.8.2-management
+FROM rabbitmq:3.8.26-management-alpine
 
 # change workgin dir
 WORKDIR $RABBITMQ_HOME
